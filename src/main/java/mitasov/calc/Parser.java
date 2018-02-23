@@ -1,33 +1,29 @@
-package roman_mitasov.expression_eval;
+package mitasov.calc;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Stack;
 
-import static roman_mitasov.expression_eval.Tokens.*;
+import static mitasov.calc.Token.*;
 
-public class Parser {
+class Parser {
     private Stack<Token> tokenStack;
     private RPNCodeGen codeGen;
 
-    public Parser(RPNCodeGen codeGen) {
+    Parser(RPNCodeGen codeGen) {
         this.codeGen = codeGen;
         tokenStack = new Stack<>();
     }
 
-
     private boolean isOperand(int id) {
-        return id == FACT ||
-                id == PERSENT ||
-                id == NUMBER ||
-                id == CONST ||
-                id == RPAREN ||
-                id == PI ||
-                id == E;
+        return id == FACT
+            || id == PERCENT
+            || id == NUMBER
+            || id == CONST
+            || id == RPAREN
+            || id == PI
+            || id == E;
     }
 
-    private void pushOperator(Token token) throws Exception {
+    private void pushOperator(Token token) {
         int priority = token.getAssoc() != Token.RIGHT ? token.getPriority() : token.getPriority() + 1;
         while (!tokenStack.empty() && priority <= tokenStack.peek().getPriority()) {
             codeGen.push(tokenStack.pop());
@@ -35,7 +31,7 @@ public class Parser {
         tokenStack.push(token);
     }
 
-    public void parse(String expression, Lexer lexer) throws Exception {
+    void parse(Lexer lexer) throws Exception {
         Token token;
         int prevTokenId = -2;
         do {
@@ -80,13 +76,13 @@ public class Parser {
                         if (isOperand(prevTokenId)) {
                             pushOperator(new Token(MUL, Token.LEFT).setPriority(2));
                         }
-                        tokenStack.push(token);
+                        pushOperator(token);
                         break;
                     }
                     if (!isOperand(prevTokenId)) {
                         if (token.getId() == MINUS) {
                             token = new Token(UN_MINUS, Token.PREF).setPriority(3);
-                            tokenStack.push(token);
+                            pushOperator(token);
                             break;
                         } else if (token.getId() == PLUS) {
                             continue;

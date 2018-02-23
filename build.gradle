@@ -1,4 +1,4 @@
-group 'roman_mitasov.expression_eval'
+group 'mitasov.calc'
 version '1.0'
 
 apply plugin: 'java'

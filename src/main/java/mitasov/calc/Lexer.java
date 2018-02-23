@@ -1,8 +1,8 @@
-package roman_mitasov.expression_eval;
+package mitasov.calc;
 
 import java.util.HashMap;
 
-import static roman_mitasov.expression_eval.Tokens.*;
+import static mitasov.calc.Token.*;
 
 public class Lexer {
 
@@ -25,10 +25,10 @@ public class Lexer {
     private char[] buffer;
     private final char POINT;
     private static final char ENDING_CHAR = '$';
-    private ExpressionEvaluator.Constants constants;
+    private Constants constants;
     private Token savedToken = null;
 
-    public Lexer(String expression, ExpressionEvaluator.Constants constants, char POINT) {
+    Lexer(String expression, Constants constants, char POINT) {
         this.POINT = POINT;
         this.constants = constants;
 
@@ -38,7 +38,7 @@ public class Lexer {
         pos = 0;
     }
 
-    public Lexer(String expression, ExpressionEvaluator.Constants constants) {
+    Lexer(String expression, Constants constants) {
         this(expression, constants, '.');
     }
 
@@ -51,7 +51,7 @@ public class Lexer {
         return savedToken;
     }
 
-    public Token nextToken() throws Exception {
+    Token nextToken() throws Exception {
         if (savedToken != null) {
             Token temp = savedToken;
             savedToken = null;
@@ -102,7 +102,7 @@ public class Lexer {
                         case '!':
                             return new Token(FACT, Token.PREF, pos - 1).setPriority(5);
                         case '%':
-                            return new Token(PERSENT, Token.SUF, pos - 1).setPriority(6);
+                            return new Token(PERCENT, Token.SUF, pos - 1).setPriority(6);
                         case ENDING_CHAR:
                             return new Token(END, 0, pos);
                         default:
@@ -117,7 +117,7 @@ public class Lexer {
                         if (predeclared.containsKey(word.toLowerCase())) {
                             return predeclared.get(word.toLowerCase()).setPosition(begin);
                         }
-                        constants.addConst(word, 0);
+                        constants.add(word, 0);
                         return (new Token(CONST, 0, begin)).setName(word);
                     }
                 case 2:
@@ -141,11 +141,11 @@ public class Lexer {
         return n >= '0' && n <= '9' || n == POINT;
     }
 
-    private boolean isWhitespace(char w) {
+    private static boolean isWhitespace(char w) {
         return " \n\r\t".indexOf(w) != -1;
     }
 
-    private boolean isConstant(char c) {
+    private static boolean isConstant(char c) {
         return "_#@'~&".indexOf(c) != -1 || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z';
     }
 }

@@ -1,26 +1,35 @@
-import roman_mitasov.expression_eval.ExpressionEvaluator;
-import roman_mitasov.expression_eval.Token;
+import mitasov.calc.Expression;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-
-import static roman_mitasov.expression_eval.Tokens.*;
+import java.util.Scanner;
 
 public class Main {
 
     public static void main(String args[]) {
         DecimalFormat df = new DecimalFormat("#.#############");
         df.setRoundingMode(RoundingMode.CEILING);
-
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Введите выражение: ");
+        String exprString = scanner.nextLine();
         try {
-        ExpressionEvaluator eval = new ExpressionEvaluator("75-69/3*96/12^8");
-        System.out.println(df.format(eval.evaluate()));
-            System.out.println(df.format(Math.tan(Math.PI)));
+            Expression expression = new Expression(exprString, ',');
+            while (true) {
+                if (expression.hasConstants()) {
+                    for (String name : expression.getConstants().getNames()) {
+                        System.out.println("Введите значение переменной " + name + ": ");
+                        expression.getConstants().set(name, scanner.nextDouble());
+                    }
+                }
+                System.out.println(df.format(expression.evaluate()));
+                System.out.println("Повторить решение? (1/0)");
+                int answ = scanner.nextInt();
+                if (answ == 0) {
+                    break;
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-//         parser.getConstants().forEach((k, v) -> System.out.println(k + " : " + v));
-
     }
 }
