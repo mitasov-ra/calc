@@ -12,8 +12,9 @@ public class Constants {
         this.constMap = new HashMap<>();
     }
 
-    public void add(String name, double val) {
+    public Constants add(String name, double val) {
         constMap.put(name, val);
+        return this;
     }
 
     void resetModified() {
@@ -32,10 +33,11 @@ public class Constants {
         return constMap.get(name);
     }
 
-    public void set(String name, double value) throws Exception {
+    public Constants set(String name, double value) throws Exception {
         if (constMap.containsKey(name)) {
             isModified = true;
             constMap.put(name, value);
+            return this;
         } else {
             throw new Exception("No such constant in set");
         }
