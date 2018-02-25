@@ -6,19 +6,73 @@ import static mitasov.calc.Token.*;
 
 public class Lexer {
 
-    private static HashMap<String, Token> predeclared = new HashMap<>();
+    private static HashMap<String, Token> predeclared = new HashMap<String, Token>() {
+        @Override
+        public Token get(Object key) {
+            return new Token(super.get(key)); //возвращает копию токена
+        }
+    };
 
+    /*
+     * Все записи должны быть в нижнем регистре,
+     * при поиске регистр токена тоже будет понижаться,
+     * этим достигается нечувствительность к регистру
+     */
     static {
-        predeclared.put("sin", new Token(SIN, Token.PREF));
-        predeclared.put("cos", new Token(COS, Token.PREF));
-        predeclared.put("tan", new Token(TAN, Token.PREF));
-        predeclared.put("log", new Token(LOG, Token.PREF));
-        predeclared.put("ln", new Token(LN, Token.PREF));
-        predeclared.put("exp", new Token(EXP, Token.PREF));
-        predeclared.put("sqrt", new Token(SQRT, Token.PREF));
-        predeclared.put("abs", new Token(ABS, Token.PREF));
-        predeclared.put("sgn", new Token(SGN, Token.PREF));
-        predeclared.put("pi", new Token(PI, 0));
+        predeclared.put("sin", new Token(SIN, Token.PREF).setPriority(7));
+        predeclared.put("cos", new Token(COS, Token.PREF).setPriority(7));
+        predeclared.put("arcsin", new Token(ASIN, Token.PREF).setPriority(7));
+        predeclared.put("arccos", new Token(ACOS, Token.PREF).setPriority(7));
+
+        // временная переменная для
+        // передачи одного объекта несколько раз
+        Token temp = new Token(TAN, Token.PREF).setPriority(7);
+        predeclared.put("tan", temp);
+        predeclared.put("tg", temp);
+
+        predeclared.put("log", new Token(LOG, Token.PREF).setPriority(7));
+        predeclared.put("ln", new Token(LN, Token.PREF).setPriority(7));
+        predeclared.put("exp", new Token(EXP, Token.PREF).setPriority(7));
+        predeclared.put("sqrt", new Token(SQRT, Token.PREF).setPriority(7));
+        predeclared.put("abs", new Token(ABS, Token.PREF).setPriority(7));
+        predeclared.put("sgn", new Token(SGN, Token.PREF).setPriority(7));
+
+        temp = new Token(COT, Token.PREF).setPriority(7);
+        predeclared.put("ctg", temp);
+        predeclared.put("cot", temp);
+
+        temp = new Token(ACOT, Token.PREF).setPriority(7);
+        predeclared.put("arcctg", temp);
+        predeclared.put("arccot", temp);
+
+        temp = new Token(ATAN, Token.PREF).setPriority(7);
+        predeclared.put("arctan", temp);
+        predeclared.put("arctg", temp);
+
+        temp = new Token(SH, Token.PREF).setPriority(7);
+        predeclared.put("sh", temp);
+        predeclared.put("sinh", temp);
+
+        temp = new Token(CH, Token.PREF).setPriority(7);
+        predeclared.put("ch", temp);
+        predeclared.put("cosh", temp);
+
+        temp = new Token(TH, Token.PREF).setPriority(7);
+        predeclared.put("th", temp);
+        predeclared.put("tanh", temp);
+
+        temp = new Token(CTH, Token.PREF).setPriority(7);
+        predeclared.put("cth", temp);
+        predeclared.put("coth", temp);
+
+        temp = new Token(PI, 0);
+        predeclared.put("pi", temp);
+        predeclared.put("\u03c0", temp); // буква Пи строчная греческая
+        predeclared.put("\uD835\uDF0B", temp); // символ Пи математический
+
+        temp = new Token(E, 0);
+        predeclared.put("e", temp);
+        predeclared.put("\uD835\uDC52", temp); // строчная математическая e
     }
 
     private int pos;
@@ -100,7 +154,7 @@ public class Lexer {
                         case '\u221a':
                             return new Token(SQRT, Token.PREF, pos - 1).setPriority(7);
                         case '!':
-                            return new Token(FACT, Token.PREF, pos - 1).setPriority(5);
+                            return new Token(FACT, Token.SUF, pos - 1).setPriority(5);
                         case '%':
                             return new Token(PERCENT, Token.SUF, pos - 1).setPriority(6);
                         case ENDING_CHAR:
@@ -146,6 +200,6 @@ public class Lexer {
     }
 
     private static boolean isConstant(char c) {
-        return "_#@'~&".indexOf(c) != -1 || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z';
+        return "_#@'~&\uD835\uDF0B\u03c0\uD835\uDC52".indexOf(c) != -1 || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z';
     }
 }

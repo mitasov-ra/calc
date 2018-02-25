@@ -27,6 +27,15 @@ public class Token {
 
     static final int ABS = 22;
     static final int SGN = 23;
+    static final int COT = 24;
+    static final int ASIN = 25;
+    static final int ACOS = 26;
+    static final int ATAN = 27;
+    static final int ACOT = 28;
+    static final int CH = 29;
+    static final int SH = 30;
+    static final int TH = 31;
+    static final int CTH = 32;
 
     static final int RPAREN = 20;
     static final int LPAREN = 21;
@@ -97,13 +106,19 @@ public class Token {
     }
 
     Token(int id, int assoc, int position) {
-        this.id = id;
+        this(id, assoc);
         this.position = position;
-        this.assoc = assoc;
     }
 
     Token(int id, int assoc) {
         this.id = id;
         this.assoc = assoc;
+    }
+
+    Token(Token t) {
+        this(t.id, t.assoc, t.position);
+        this.name = t.name;
+        this.priority = t.priority;
+        this.value = t.value;
     }
 }

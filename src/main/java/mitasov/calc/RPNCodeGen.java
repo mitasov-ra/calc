@@ -1,5 +1,7 @@
 package mitasov.calc;
 
+import org.omg.CORBA.MARSHAL;
+
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -86,6 +88,42 @@ class RPNCodeGen {
                                 result = Math.abs(value);
                                 break;
 
+                            case COT:
+                                result = cot(value);
+                                break;
+
+                            case ACOS:
+                                result = Math.acos(value);
+                                break;
+
+                            case ASIN:
+                                result = Math.asin(value);
+                                break;
+
+                            case ATAN:
+                                result = Math.atan(value);
+                                break;
+
+                            case ACOT:
+                                result = acot(value);
+                                break;
+
+                            case CH:
+                                result = Math.cosh(value);
+                                break;
+
+                            case SH:
+                                result = Math.sinh(value);
+                                break;
+
+                            case TH:
+                                result = Math.tanh(value);
+                                break;
+
+                            case CTH:
+                                result = coth(value);
+                                break;
+
                             case UN_MINUS:
                                 result = -value;
                                 break;
@@ -132,5 +170,17 @@ class RPNCodeGen {
 
         for (int i = 1; i <= value; ++i) ret *= i;
         return ret;
+    }
+
+    private static double cot(double value) {
+        return 1.0D / Math.tan(value);
+    }
+
+    private static double coth(double value) {
+        return 1.0D / Math.tanh(value);
+    }
+
+    private static double acot(double value) {
+        return Math.PI / 2.0D - cot(value);
     }
 }
