@@ -140,10 +140,17 @@ public class Lexer {
                         case '+':
                             return new Token(PLUS, Token.LEFT, pos - 1).setPriority(1);
                         case '-':
+                        case '\u2212':
                             return new Token(MINUS, Token.LEFT, pos - 1).setPriority(1);
                         case '*':
+                        case '\u2219':
+                        case '\u2217':
+                        case '\u00D7':
+                        case '\u2715':
                             return new Token(MUL, Token.LEFT, pos - 1).setPriority(2);
                         case '/':
+                        case '\u00F7':
+                        case '\u2215':
                             return new Token(DIV, Token.LEFT, pos - 1).setPriority(2);
                         case '^':
                             return new Token(POW, Token.RIGHT, pos - 1).setPriority(4);
