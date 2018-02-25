@@ -7,6 +7,7 @@ import static mitasov.calc.Token.*;
 class Parser {
     private Stack<Token> tokenStack;
     private RPNCodeGen codeGen;
+    private boolean hasOperators = false;
 
     Parser(RPNCodeGen codeGen) {
         this.codeGen = codeGen;
@@ -29,6 +30,10 @@ class Parser {
             codeGen.push(tokenStack.pop());
         }
         tokenStack.push(token);
+    }
+
+    boolean hasOperators() {
+        return hasOperators;
     }
 
     void parse(Lexer lexer) throws Exception {
@@ -75,7 +80,8 @@ class Parser {
                 case LPAREN:
                     tokenStack.push(token);
                     break;
-                default:
+                default: //токен - оператор
+                    hasOperators = true;
                     if (token.getAssoc() == Token.PREF) {
                         if (isOperand(prevTokenId)) {
                             pushOperator(new Token(MUL, Token.LEFT).setPriority(2));

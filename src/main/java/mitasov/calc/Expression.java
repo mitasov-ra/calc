@@ -5,6 +5,7 @@ public class Expression {
     private RPNCodeGen codeGen;
     private String expression;
     private Constants constants;
+    private boolean hasOperators;
 
     public Expression(String expression, char POINT) throws Exception {
         this.expression = expression;
@@ -13,6 +14,7 @@ public class Expression {
 
         Parser parser = new Parser(codeGen);
         parser.parse(new Lexer(expression, constants, POINT));
+        hasOperators = parser.hasOperators();
     }
 
     public Expression(String expression) throws Exception {
@@ -29,6 +31,10 @@ public class Expression {
 
     public boolean hasConstants() {
         return !constants.isEmpty();
+    }
+
+    public boolean hasOperations() {
+        return hasOperators;
     }
 
     public double evaluate() {
