@@ -13,7 +13,7 @@ class Parser {
         tokenStack = new Stack<>();
     }
 
-    private boolean isOperand(int id) {
+    private static boolean isOperand(int id) {
         return id == FACT
             || id == PERCENT
             || id == NUMBER
@@ -65,13 +65,17 @@ class Parser {
                     while (!tokenStack.empty()) {
                         if (tokenStack.peek().getId() == RPAREN) {
                             throw new Exception("unexpected )");
+                        } else if (tokenStack.peek().getId() == LPAREN) {
+                            tokenStack.pop();
+                            continue;
                         }
                         codeGen.push(tokenStack.pop());
                     }
                     break;
                 case LPAREN:
+                    tokenStack.push(token);
+                    break;
                 default:
-
                     if (token.getAssoc() == Token.PREF) {
                         if (isOperand(prevTokenId)) {
                             pushOperator(new Token(MUL, Token.LEFT).setPriority(2));
