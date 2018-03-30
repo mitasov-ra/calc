@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import static mitasov.calc.Token.*;
 
-public class Lexer {
+class Lexer {
 
     private static HashMap<String, Token> predeclared = new HashMap<String, Token>() {
         @Override
@@ -78,7 +78,7 @@ public class Lexer {
     private int pos;
     private char[] buffer;
     private final char POINT;
-    private static final char ENDING_CHAR = '$';
+    private static final char ENDING_CHAR = '#';
     private Constants constants;
     private Token savedToken = null;
 
@@ -96,7 +96,7 @@ public class Lexer {
         this(expression, constants, '.');
     }
 
-    public Token lookForToken() throws Exception {
+    Token lookForToken() throws Exception {
         if (savedToken == null) {
             savedToken = nextToken();
             return savedToken;
@@ -120,11 +120,11 @@ public class Lexer {
             c = buffer[pos];
             switch (state) {
                 case 0:
-                    if (isWhitespace(c)) {
+                    if (Character.isWhitespace(c)) {
                         break;
                     }
 
-                    if (isConstant(c)) {
+                    if (Character.isJavaIdentifierStart(c)) {
                         begin = pos;
                         state = 1;
                         break;
@@ -168,45 +168,39 @@ public class Lexer {
                             return new Token(END, 0, pos);
                         default:
                             throw new Exception("Invalid character");
-
                     }
-                case 1:
-                    if (isConstant(c)) {
+                case 1: {
+                    if (Character.isJavaIdentifierPart(c)) {
                         break;
-                    } else {
-                        String word = String.valueOf(buffer, begin, pos - begin);
-                        if (predeclared.containsKey(word.toLowerCase())) {
-                            return predeclared.get(word.toLowerCase()).setPosition(begin);
-                        }
-                        constants.add(word, 0);
-                        return (new Token(CONST, 0, begin)).setName(word);
                     }
-                case 2:
+
+                    String word = String.valueOf(buffer, begin, pos - begin);
+                    if (predeclared.containsKey(word.toLowerCase())) {
+                        return predeclared.get(word.toLowerCase()).setPosition(begin);
+                    }
+                    constants.add(word, 0);
+                    return (new Token(CONST, 0, begin)).setName(word);
+                }
+
+                case 2: {
                     if (isNumber(c)) {
                         break;
-                    } else {
-                        String word = String.valueOf(buffer, begin, pos - begin);
-                        Token tok = new Token(NUMBER, 0, begin);
-                        if (word.equals("" + POINT)) {
-                            return tok.setValue(0d);
-                        } else {
-                            return tok.setValue(Double.parseDouble(word.replace(POINT, '.')));
-                        }
                     }
+
+                    String word = String.valueOf(buffer, begin, pos - begin);
+                    Token tok = new Token(NUMBER, 0, begin);
+                    if (word.equals("" + POINT)) {
+                        return tok.setValue(0d);
+                    } else {
+                        return tok.setValue(Double.parseDouble(word.replace(POINT, '.')));
+                    }
+                }
             }
             pos++;
         }
     }
 
     private boolean isNumber(char n) {
-        return n >= '0' && n <= '9' || n == POINT;
-    }
-
-    private static boolean isWhitespace(char w) {
-        return " \n\r\t".indexOf(w) != -1;
-    }
-
-    private static boolean isConstant(char c) {
-        return "_#@'~&\uD835\uDF0B\u03c0\uD835\uDC52".indexOf(c) != -1 || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z';
+        return Character.isDigit(n) || n == POINT;
     }
 }
