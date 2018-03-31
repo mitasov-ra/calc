@@ -1,52 +1,52 @@
 package mitasov.calc;
 
 public class Token {
-    static final int PREF = 1;
-    static final int SUF = 2;
-    static final int LEFT = 3;
-    static final int RIGHT = 4;
+    enum Assoc {
+        PREF,
+        SUF,
+        LEFT,
+        RIGHT,
+    }
 
-    static final int NUMBER = 0;
-    static final int PLUS = 2;
-    static final int MINUS = 3;
-    static final int DIV = 4;
-    static final int MUL = 5;
-    static final int POW = 6;
-    static final int PERCENT = 7;
-    static final int FACT = 8;
-    static final int SIN = 9;
-    static final int COS = 10;
-    static final int TAN = 11;
-    static final int EXP = 12;
-    static final int LN = 13;
-    static final int LOG = 14;
-    static final int UN_MINUS = 15;
-    static final int PI = 16;
-    static final int E = 17;
-    static final int SQRT = 18;
+    enum Id {
+        NUMBER,
+        PLUS,
+        MINUS,
+        DIV,
+        MUL,
+        POW,
+        PERCENT,
+        FACT,
+        SIN,
+        COS,
+        TAN,
+        EXP,
+        LN,
+        LOG,
+        UN_MINUS,
+        PI,
+        E,
+        SQRT,
+        ABS,
+        SGN,
+        COT,
+        ASIN,
+        ACOS,
+        ATAN,
+        ACOT,
+        CH,
+        SH,
+        TH,
+        CTH,
+        RPAREN,
+        LPAREN,
+        CONST,
+        END,
+    }
 
-    static final int ABS = 22;
-    static final int SGN = 23;
-    static final int COT = 24;
-    static final int ASIN = 25;
-    static final int ACOS = 26;
-    static final int ATAN = 27;
-    static final int ACOT = 28;
-    static final int CH = 29;
-    static final int SH = 30;
-    static final int TH = 31;
-    static final int CTH = 32;
-
-    static final int RPAREN = 20;
-    static final int LPAREN = 21;
-
-    static final int CONST = 1;
-
-    static final int END = -1;
-
-    private int id;
+    private Id id;
     private int position;
-    private int assoc;
+    private Assoc assoc;
     private int priority;
     private String name = null;
     private double value;
@@ -69,11 +69,11 @@ public class Token {
         return this;
     }
 
-    int getAssoc() {
+    Assoc getAssoc() {
         return assoc;
     }
 
-    public Token setAssoc(int assoc) {
+    public Token setAssoc(Assoc assoc) {
         this.assoc = assoc;
         return this;
     }
@@ -87,11 +87,11 @@ public class Token {
         return this;
     }
 
-    int getId() {
+    Id getId() {
         return id;
     }
 
-    public Token setId(byte id) {
+    public Token setId(Id id) {
         this.id = id;
         return this;
     }
@@ -105,12 +105,12 @@ public class Token {
         return this;
     }
 
-    Token(int id, int assoc, int position) {
+    Token(Id id, Assoc assoc, int position) {
         this(id, assoc);
         this.position = position;
     }
 
-    Token(int id, int assoc) {
+    Token(Id id, Assoc assoc) {
         this.id = id;
         this.assoc = assoc;
     }
@@ -120,5 +120,32 @@ public class Token {
         this.name = t.name;
         this.priority = t.priority;
         this.value = t.value;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Token)) {
+            return false;
+        }
+
+        Token t = (Token) obj;
+
+        return id == t.id
+            && assoc == t.assoc
+            && value == t.value
+            && (name == t.name || name.equals(t.name))
+            && position == t.position;
+    }
+
+    @Override
+    public String toString() {
+        return "Token{\n" +
+            "id=" + id +
+            ",\n position=" + position +
+            ",\n assoc=" + assoc +
+            ",\n priority=" + priority +
+            ",\n name='" + name + '\'' +
+            ",\n value=" + value +
+            "\n}";
     }
 }

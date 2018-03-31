@@ -5,7 +5,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static mitasov.calc.Token.*;
+import static mitasov.calc.Token.Id.*;
 import static org.junit.Assert.*;
 
 public class LexerTest {
@@ -21,7 +21,7 @@ public class LexerTest {
 
         Token current = lexer.nextToken();
 
-        assertEquals(next, current); //это должен быть один и тот же объект
+        assertSame(next, current); //это должен быть один и тот же объект
 
         next = lexer.lookForToken();
 
@@ -29,16 +29,16 @@ public class LexerTest {
         assertEquals(next.getName(), "a");
         assertEquals(next.getValue(), 0D, 0);
 
-        assertNotEquals(current, next); //теперь они разные
+        assertNotSame(current, next); //теперь они разные
     }
 
     @Test
     public void testNumbers() throws Exception {
         Lexer lexer = new Lexer("2 3\t4.2\n .67 . 0. .0 .9999999 213151.3", new Constants());
 
-        ArrayList<Integer> output = new ArrayList<>();
+        ArrayList<Token.Id> output = new ArrayList<>();
 
-        Integer[] expect = {
+        Token.Id[] expect = {
             NUMBER, NUMBER, NUMBER, NUMBER, NUMBER, NUMBER, NUMBER, NUMBER, NUMBER, END,
         };
 
@@ -46,7 +46,7 @@ public class LexerTest {
         do {
             t = lexer.nextToken();
             output.add(t.getId());
-        } while (t.getId() != Token.END);
+        } while (t.getId() != END);
 
         assertArrayEquals(output.toArray(), expect);
     }
@@ -84,7 +84,7 @@ public class LexerTest {
     public void testConstants() throws Exception {
         Lexer lexer = new Lexer("a/*bc\te asd4\n sin8\rtan78 \u03c0lnas \u03c0 9as -q d(sd)a", new Constants());
 
-        Integer expect[] = {
+        Token.Id expect[] = {
             CONST,
             DIV,
             MUL,
@@ -107,7 +107,7 @@ public class LexerTest {
             END,
         };
 
-        ArrayList<Integer> output = new ArrayList<>();
+        ArrayList<Token.Id> output = new ArrayList<>();
 
         Token t;
         do {
@@ -134,7 +134,7 @@ public class LexerTest {
             new Constants()
         );
 
-        Integer[] expect = {
+        Token.Id[] expect = {
             MINUS,
             MINUS,
             E,
@@ -157,7 +157,7 @@ public class LexerTest {
             END,
         };
 
-        ArrayList<Integer> output = new ArrayList<>();
+        ArrayList<Token.Id> output = new ArrayList<>();
 
         Token t;
         do {
@@ -187,7 +187,7 @@ public class LexerTest {
             new Constants()
         );
 
-        Integer[] expect = {
+        Token.Id[] expect = {
             SIN,
             COS,
             ASIN,
@@ -232,7 +232,7 @@ public class LexerTest {
             END,
         };
 
-        ArrayList<Integer> output = new ArrayList<>();
+        ArrayList<Token.Id> output = new ArrayList<>();
 
         Token t;
         do {

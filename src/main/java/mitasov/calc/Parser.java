@@ -2,7 +2,9 @@ package mitasov.calc;
 
 import java.util.Stack;
 
-import static mitasov.calc.Token.*;
+import static mitasov.calc.Token.Assoc;
+import static mitasov.calc.Token.Id;
+import static mitasov.calc.Token.Id.*;
 
 class Parser {
     private Stack<Token> tokenStack;
@@ -14,7 +16,7 @@ class Parser {
         tokenStack = new Stack<>();
     }
 
-    private static boolean isOperand(int id) {
+    private static boolean isOperand(Id id) {
         return id == FACT
             || id == PERCENT
             || id == NUMBER
@@ -25,7 +27,11 @@ class Parser {
     }
 
     private void pushOperator(Token token) {
-        int priority = token.getAssoc() != Token.RIGHT ? token.getPriority() : token.getPriority() + 1;
+        if (!hasOperators) {
+            hasOperators = true;
+        }
+
+        int priority = token.getAssoc() != Assoc.RIGHT ? token.getPriority() : token.getPriority() + 1;
         while (!tokenStack.empty() && priority <= tokenStack.peek().getPriority()) {
             codeGen.push(tokenStack.pop());
         }
@@ -37,70 +43,75 @@ class Parser {
     }
 
     void parse(Lexer lexer) throws Exception {
+        hasOperators = false; //сброс флага операторов для нового выражения
+        codeGen.clear(); //сброс данных в кодогенераторе
+
         Token token;
-        int prevTokenId = -2;
+        Id prevTokenId = null;
         do {
             token = lexer.nextToken();
             switch (token.getId()) {
-                case CONST:
-                case NUMBER:
-                case PI:
-                case E:
-                    if (isOperand(prevTokenId)) {
-                        pushOperator(new Token(MUL, Token.LEFT).setPriority(2));
-                    }
-                    codeGen.push(token);
-                    break;
+            case CONST:
+            case NUMBER:
+            case PI:
+            case E:
+                if (isOperand(prevTokenId)) {
+                    pushOperator(new Token(MUL, Token.Assoc.LEFT).setPriority(2));
+                }
+                codeGen.push(token);
+                break;
 
-                case RPAREN:
-                    if (!isOperand(prevTokenId)) {
+            case RPAREN:
+                if (!isOperand(prevTokenId)) {
+                    throw new Exception("unexpected )");
+                }
+                while (!tokenStack.empty() && tokenStack.peek().getId() != LPAREN) {
+                    codeGen.push(tokenStack.pop());
+                }
+                tokenStack.pop();
+
+                break;
+
+            case END:
+                if (!isOperand(prevTokenId)) {
+                    throw new Exception("unexpected END");
+                }
+                while (!tokenStack.empty()) {
+                    if (tokenStack.peek().getId() == RPAREN) {
                         throw new Exception("unexpected )");
+                    } else if (tokenStack.peek().getId() == LPAREN) {
+                        tokenStack.pop();
+                        continue;
                     }
-                    while (!tokenStack.empty() && tokenStack.peek().getId() != LPAREN) {
-                        codeGen.push(tokenStack.pop());
+                    codeGen.push(tokenStack.pop());
+                }
+                break;
+            case LPAREN:
+                if (isOperand(prevTokenId)) {
+                    pushOperator(new Token(MUL, Assoc.LEFT).setPriority(2));
+                }
+                tokenStack.push(token);
+                break;
+            default: //токен - оператор
+                if (token.getAssoc() == Assoc.PREF) {
+                    if (isOperand(prevTokenId)) {
+                        pushOperator(new Token(MUL, Assoc.LEFT).setPriority(2));
                     }
-                    tokenStack.pop();
-
+                    pushOperator(token);
                     break;
-
-                case END:
-                    if (!isOperand(prevTokenId)) {
-                        throw new Exception("unexpected END");
-                    }
-                    while (!tokenStack.empty()) {
-                        if (tokenStack.peek().getId() == RPAREN) {
-                            throw new Exception("unexpected )");
-                        } else if (tokenStack.peek().getId() == LPAREN) {
-                            tokenStack.pop();
-                            continue;
-                        }
-                        codeGen.push(tokenStack.pop());
-                    }
-                    break;
-                case LPAREN:
-                    tokenStack.push(token);
-                    break;
-                default: //токен - оператор
-                    hasOperators = true;
-                    if (token.getAssoc() == Token.PREF) {
-                        if (isOperand(prevTokenId)) {
-                            pushOperator(new Token(MUL, Token.LEFT).setPriority(2));
-                        }
+                }
+                if (!isOperand(prevTokenId)) {
+                    if (token.getId() == MINUS) {
+                        token = new Token(UN_MINUS, Assoc.PREF).setPriority(3);
                         pushOperator(token);
                         break;
+                    } else if (token.getId() == PLUS) {
+                        continue;
                     }
-                    if (!isOperand(prevTokenId)) {
-                        if (token.getId() == MINUS) {
-                            token = new Token(UN_MINUS, Token.PREF).setPriority(3);
-                            pushOperator(token);
-                            break;
-                        } else if (token.getId() == PLUS) {
-                            continue;
-                        }
-                        throw new Exception("operator without operand");
-                    }
+                    throw new Exception("operator without operand");
+                }
 
-                    pushOperator(token);
+                pushOperator(token);
             }
             prevTokenId = token.getId();
 
