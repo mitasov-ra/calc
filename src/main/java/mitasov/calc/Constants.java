@@ -1,15 +1,15 @@
 package mitasov.calc;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 public class Constants {
     private boolean isModified = true;
     private Map<String, Double> constMap;
 
     Constants() {
-        this.constMap = new HashMap<>();
+        this.constMap = new TreeMap<>();
     }
 
     public Constants add(String name, double val) {
