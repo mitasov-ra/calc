@@ -135,7 +135,7 @@ class RPNCodeGen {
                         break;
 
                     default:
-                        throw new RuntimeException("unknown token");
+                        throw new RuntimeException("Unknown token");
                     }
                 } else {
                     double rval = evalStack.pop();
@@ -157,7 +157,7 @@ class RPNCodeGen {
                         result = Math.pow(lval, rval);
                         break;
                     default:
-                        throw new RuntimeException("unknown token");
+                        throw new RuntimeException("Unknown token");
                     }
                 }
                 evalStack.push(result);

@@ -1,5 +1,6 @@
 package mitasov.calc;
 
+import java.util.EmptyStackException;
 import java.util.Stack;
 
 import static mitasov.calc.Token.Assoc;
@@ -42,12 +43,12 @@ class Parser {
         return hasOperators;
     }
 
-    void parse(Lexer lexer) throws Exception {
+    void parse(Lexer lexer) throws CompileException {
         hasOperators = false; //сброс флага операторов для нового выражения
         codeGen.clear(); //сброс данных в кодогенераторе
 
         Token token;
-        Id prevTokenId = null;
+        Token prevToken = null;
         do {
             token = lexer.nextToken();
             switch (token.getId()) {
@@ -55,30 +56,38 @@ class Parser {
             case NUMBER:
             case PI:
             case E:
-                if (isOperand(prevTokenId)) {
-                    pushOperator(new Token(MUL, Token.Assoc.LEFT).setPriority(2));
+                if (prevToken != null && isOperand(prevToken.getId())) {
+                    pushOperator(new Token(MUL, Token.Assoc.LEFT).setPriority(2).setPosition(token.getPosition()));
                 }
                 codeGen.push(token);
                 break;
 
             case RPAREN:
-                if (!isOperand(prevTokenId)) {
-                    throw new Exception("unexpected )");
+                if (prevToken == null || !isOperand(prevToken.getId())) {
+                    throw new CompileException("Unexpected character: )", token);
                 }
                 while (!tokenStack.empty() && tokenStack.peek().getId() != LPAREN) {
                     codeGen.push(tokenStack.pop());
                 }
-                tokenStack.pop();
-
+                try {
+                    tokenStack.pop();
+                } catch (EmptyStackException e) { //LPAREN expected in stack
+                    throw new CompileException("Closing parenthesis without opening", token);
+                }
                 break;
 
             case END:
-                if (!isOperand(prevTokenId)) {
-                    throw new Exception("unexpected END");
+                if (prevToken == null) {
+                    throw new CompileException("Unexpected end of expression", 0, 0);
                 }
+
+                if (!isOperand(prevToken.getId())) {
+                    throw new CompileException("Unexpected end of expression", prevToken);
+                }
+
                 while (!tokenStack.empty()) {
                     if (tokenStack.peek().getId() == RPAREN) {
-                        throw new Exception("unexpected )");
+                        throw new CompileException("Unexpected character: )", tokenStack.peek());
                     } else if (tokenStack.peek().getId() == LPAREN) {
                         tokenStack.pop();
                         continue;
@@ -87,20 +96,20 @@ class Parser {
                 }
                 break;
             case LPAREN:
-                if (isOperand(prevTokenId)) {
-                    pushOperator(new Token(MUL, Assoc.LEFT).setPriority(2));
+                if (prevToken != null && isOperand(prevToken.getId())) {
+                    pushOperator(new Token(MUL, Assoc.LEFT).setPriority(2).setPosition(token.getPosition()));
                 }
                 tokenStack.push(token);
                 break;
             default: //токен - оператор
                 if (token.getAssoc() == Assoc.PREF) {
-                    if (isOperand(prevTokenId)) {
+                    if (prevToken != null && isOperand(prevToken.getId())) {
                         pushOperator(new Token(MUL, Assoc.LEFT).setPriority(2));
                     }
                     pushOperator(token);
                     break;
                 }
-                if (!isOperand(prevTokenId)) {
+                if (prevToken == null || !isOperand(prevToken.getId())) {
                     if (token.getId() == MINUS) {
                         token = new Token(UN_MINUS, Assoc.PREF).setPriority(3);
                         pushOperator(token);
@@ -108,12 +117,12 @@ class Parser {
                     } else if (token.getId() == PLUS) {
                         continue;
                     }
-                    throw new Exception("operator without operand");
+                    throw new CompileException("Operator without operand", token);
                 }
 
                 pushOperator(token);
             }
-            prevTokenId = token.getId();
+            prevToken = token;
 
         } while (token.getId() != END);
     }

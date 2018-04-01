@@ -7,7 +7,7 @@ public class Expression {
     private Constants constants;
     private boolean hasOperators;
 
-    public Expression(String expression, char POINT) throws Exception {
+    public Expression(String expression, char POINT) throws CompileException {
         this.expression = expression;
         constants = new Constants();
         codeGen = new RPNCodeGen(constants);
@@ -17,7 +17,7 @@ public class Expression {
         hasOperators = parser.hasOperators();
     }
 
-    public Expression(String expression) throws Exception {
+    public Expression(String expression) throws CompileException {
         this(expression, '.');
     }
 

@@ -97,7 +97,7 @@ class Lexer {
         this(expression, constants, '.');
     }
 
-    Token lookForToken() throws Exception {
+    Token lookForToken() throws CompileException {
         if (savedToken == null) {
             savedToken = nextToken();
             return savedToken;
@@ -106,7 +106,7 @@ class Lexer {
         return savedToken;
     }
 
-    Token nextToken() throws Exception {
+    Token nextToken() throws CompileException {
         if (savedToken != null) {
             Token temp = savedToken;
             savedToken = null;
@@ -166,9 +166,12 @@ class Lexer {
                 case '%':
                     return new Token(PERCENT, SUF, pos - 1).setPriority(6);
                 case ENDING_CHAR:
+                    if (pos != buffer.length) {
+                        throw new CompileException("Invalid character: " + ENDING_CHAR, pos - 1);
+                    }
                     return new Token(END, null, pos);
                 default:
-                    throw new Exception("Invalid character");
+                    throw new CompileException("Invalid character: " + buffer[pos - 1], pos - 1);
                 }
             case 1: {
                 if (Character.isJavaIdentifierPart(c)) {
@@ -177,10 +180,10 @@ class Lexer {
 
                 String word = String.valueOf(buffer, begin, pos - begin);
                 if (predeclared.containsKey(word.toLowerCase())) {
-                    return predeclared.get(word.toLowerCase()).setPosition(begin);
+                    return predeclared.get(word.toLowerCase()).setPosition(begin).setLength(word.length());
                 }
                 constants.add(word, 0);
-                return (new Token(CONST, null, begin)).setName(word);
+                return (new Token(CONST, null, begin)).setName(word).setLength(word.length());
             }
 
             case 2: {
@@ -191,9 +194,9 @@ class Lexer {
                 String word = String.valueOf(buffer, begin, pos - begin);
                 Token tok = new Token(NUMBER, null, begin);
                 if (word.equals("" + POINT)) {
-                    return tok.setValue(0d);
+                    return tok.setValue(0d).setLength(word.length());
                 } else {
-                    return tok.setValue(Double.parseDouble(word.replace(POINT, '.')));
+                    return tok.setValue(Double.parseDouble(word.replace(POINT, '.'))).setLength(word.length());
                 }
             }
             }
