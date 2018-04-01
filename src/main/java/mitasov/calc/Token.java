@@ -50,6 +50,16 @@ public class Token {
     private int priority;
     private String name = null;
     private double value;
+    private int length = 1; //At least one symbol
+
+    int getLength() {
+        return length;
+    }
+
+    Token setLength(int length) {
+        this.length = length;
+        return this;
+    }
 
     int getPriority() {
         return priority;
@@ -73,7 +83,7 @@ public class Token {
         return assoc;
     }
 
-    public Token setAssoc(Assoc assoc) {
+    Token setAssoc(Assoc assoc) {
         this.assoc = assoc;
         return this;
     }
@@ -91,7 +101,7 @@ public class Token {
         return id;
     }
 
-    public Token setId(Id id) {
+    Token setId(Id id) {
         this.id = id;
         return this;
     }
@@ -120,6 +130,7 @@ public class Token {
         this.name = t.name;
         this.priority = t.priority;
         this.value = t.value;
+        this.length = t.length;
     }
 
     @Override
