@@ -41,7 +41,7 @@ public class Constants {
         return this;
     }
 
-    public Set<String> keySet() {
+    public Set<String> names() {
         return Collections.unmodifiableSet(constMap.keySet());
     }
 
