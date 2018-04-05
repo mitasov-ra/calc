@@ -182,7 +182,7 @@ class Lexer {
                 if (predeclared.containsKey(word.toLowerCase())) {
                     return predeclared.get(word.toLowerCase()).setPosition(begin).setLength(word.length());
                 }
-                constants.add(word, 0);
+                constants.add(word);
                 return (new Token(CONST, null, begin)).setName(word).setLength(word.length());
             }
 

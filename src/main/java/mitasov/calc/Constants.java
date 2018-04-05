@@ -1,19 +1,17 @@
 package mitasov.calc;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 
 public class Constants {
     private boolean isModified = true;
     private Map<String, Double> constMap;
 
     Constants() {
-        this.constMap = new TreeMap<>();
+        this.constMap = new LinkedHashMap<>();
     }
 
-    public Constants add(String name, double val) {
-        constMap.put(name, val);
+    Constants add(String name) {
+        constMap.put(name, 0D);
         return this;
     }
 
@@ -33,17 +31,25 @@ public class Constants {
         return constMap.get(name);
     }
 
-    public Constants set(String name, double value) throws Exception {
-        if (constMap.containsKey(name)) {
-            isModified = true;
-            constMap.put(name, value);
-            return this;
-        } else {
-            throw new Exception("No such constant in set");
+    public Constants put(String name, double value) throws Exception {
+        if (!constMap.containsKey(name)) {
+            throw new IllegalArgumentException("No such constant in set");
         }
+
+        isModified = true;
+        constMap.put(name, value);
+        return this;
     }
 
-    public Set<String> getNames() {
-        return constMap.keySet();
+    public Set<String> keySet() {
+        return Collections.unmodifiableSet(constMap.keySet());
+    }
+
+    public Set<Map.Entry<String, Double>> entrySet() {
+        return Collections.unmodifiableSet(constMap.entrySet());
+    }
+
+    public Collection<Double> values() {
+        return Collections.unmodifiableCollection(constMap.values());
     }
 }
