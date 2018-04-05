@@ -15,6 +15,31 @@ class RPNCodeGen {
         this.constants = constants;
     }
 
+    private static double fact(double value) {
+        if (value < 0 || (value != Math.floor(value)) || Double.isInfinite(value)) {
+            return Double.NaN;
+        }
+
+        double ret = 1;
+
+        for (int i = 1; i <= value; ++i) {
+            ret *= i;
+        }
+        return ret;
+    }
+
+    private static double cot(double value) {
+        return 1.0D / Math.tan(value);
+    }
+
+    private static double coth(double value) {
+        return 1.0D / Math.tanh(value);
+    }
+
+    private static double acot(double value) {
+        return Math.PI / 2.0D - cot(value);
+    }
+
     void push(Token token) {
         rpnSequence.add(token);
     }
@@ -165,30 +190,5 @@ class RPNCodeGen {
         }
         constants.resetModified();
         return evalStack.peek();
-    }
-
-    private static double fact(double value) {
-        if (value < 0 || (value != Math.floor(value)) || Double.isInfinite(value)) {
-            return Double.NaN;
-        }
-
-        double ret = 1;
-
-        for (int i = 1; i <= value; ++i) {
-            ret *= i;
-        }
-        return ret;
-    }
-
-    private static double cot(double value) {
-        return 1.0D / Math.tan(value);
-    }
-
-    private static double coth(double value) {
-        return 1.0D / Math.tanh(value);
-    }
-
-    private static double acot(double value) {
-        return Math.PI / 2.0D - cot(value);
     }
 }

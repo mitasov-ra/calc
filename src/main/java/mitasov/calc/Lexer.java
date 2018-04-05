@@ -7,6 +7,7 @@ import static mitasov.calc.Token.Id.*;
 
 class Lexer {
 
+    private static final char ENDING_CHAR = '#';
     private static HashMap<String, Token> predeclared = new HashMap<String, Token>() {
         @Override
         public Token get(Object key) {
@@ -76,10 +77,9 @@ class Lexer {
         predeclared.put("\uD835\uDC52", temp); // строчная математическая e
     }
 
+    private final char POINT;
     private int pos;
     private char[] buffer;
-    private final char POINT;
-    private static final char ENDING_CHAR = '#';
     private Constants constants;
     private Token savedToken = null;
 

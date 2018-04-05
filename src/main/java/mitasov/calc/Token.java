@@ -1,49 +1,6 @@
 package mitasov.calc;
 
 class Token {
-    enum Assoc {
-        PREF,
-        SUF,
-        LEFT,
-        RIGHT,
-    }
-
-    enum Id {
-        NUMBER,
-        PLUS,
-        MINUS,
-        DIV,
-        MUL,
-        POW,
-        PERCENT,
-        FACT,
-        SIN,
-        COS,
-        TAN,
-        EXP,
-        LN,
-        LOG,
-        UN_MINUS,
-        PI,
-        E,
-        SQRT,
-        ABS,
-        SGN,
-        COT,
-        ASIN,
-        ACOS,
-        ATAN,
-        ACOT,
-        CH,
-        SH,
-        TH,
-        CTH,
-        RPAREN,
-        LPAREN,
-        CONST,
-        END,
-    }
-
     private Id id;
     private int position;
     private Assoc assoc;
@@ -51,6 +8,23 @@ class Token {
     private String name = null;
     private double value;
     private int length = 1; //At least one symbol
+
+    Token(Id id, Assoc assoc, int position) {
+        this(id, assoc);
+        this.position = position;
+    }
+    Token(Id id, Assoc assoc) {
+        this.id = id;
+        this.assoc = assoc;
+    }
+
+    Token(Token t) {
+        this(t.id, t.assoc, t.position);
+        this.name = t.name;
+        this.priority = t.priority;
+        this.value = t.value;
+        this.length = t.length;
+    }
 
     int getLength() {
         return length;
@@ -106,31 +80,13 @@ class Token {
         return this;
     }
 
-    public int getPosition() {
+    int getPosition() {
         return position;
     }
 
     Token setPosition(int position) {
         this.position = position;
         return this;
-    }
-
-    Token(Id id, Assoc assoc, int position) {
-        this(id, assoc);
-        this.position = position;
-    }
-
-    Token(Id id, Assoc assoc) {
-        this.id = id;
-        this.assoc = assoc;
-    }
-
-    Token(Token t) {
-        this(t.id, t.assoc, t.position);
-        this.name = t.name;
-        this.priority = t.priority;
-        this.value = t.value;
-        this.length = t.length;
     }
 
     @Override
@@ -167,5 +123,48 @@ class Token {
     @Override
     public String toString() {
         return "Token:" + id + ":" + position;
+    }
+
+    enum Assoc {
+        PREF,
+        SUF,
+        LEFT,
+        RIGHT,
+    }
+
+    enum Id {
+        NUMBER,
+        PLUS,
+        MINUS,
+        DIV,
+        MUL,
+        POW,
+        PERCENT,
+        FACT,
+        SIN,
+        COS,
+        TAN,
+        EXP,
+        LN,
+        LOG,
+        UN_MINUS,
+        PI,
+        E,
+        SQRT,
+        ABS,
+        SGN,
+        COT,
+        ASIN,
+        ACOS,
+        ATAN,
+        ACOT,
+        CH,
+        SH,
+        TH,
+        CTH,
+        RPAREN,
+        LPAREN,
+        CONST,
+        END,
     }
 }
