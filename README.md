@@ -24,8 +24,8 @@ res = e.evaluate(); // == -0.5
 ```java
 Expression e = new Expression("a+b");
 
-e.getConstants().set("a", 3);
-e.getConstants().set("b", 4);
+e.getConstants().put("a", 3);
+e.getConstants().put("b", 4);
 
 double res = e.evaluate(); // == 7
 ```
@@ -33,9 +33,12 @@ double res = e.evaluate(); // == 7
 ##### Получение списка констант:
 
 ```java
-Set<String> names = e.getConstants().getNames(); //набор имён констант из выражения
+Set<String> names = e.getConstants().names(); //набор имён констант из выражения
+Set<Map.Entry<String, Double>> entries = e.getConstants().entrySet(); //набор пар имя=значение
+Collection<Double> values = e.getConstants().values(); //коллекция значений
 
-for (String name : e.getConstants().getNames()) { //пример итерации по именам
+
+for (String name : names) { //пример итерации по именам
     System.out.println(name); //выведет имя
     System.out.println(e.getConstants().get(name)); //выведет значение
 }
