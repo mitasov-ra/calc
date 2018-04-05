@@ -1,6 +1,6 @@
 package mitasov.calc;
 
-public class Token {
+class Token {
     enum Assoc {
         PREF,
         SUF,
@@ -144,19 +144,28 @@ public class Token {
         return id == t.id
             && assoc == t.assoc
             && value == t.value
-            && (name == t.name || name.equals(t.name))
+            && (name == t.name || (name != null && name.equals(t.name)))
             && position == t.position;
     }
 
     @Override
+    public int hashCode() {
+        int result = 1;
+
+        result = 31 * result + (assoc != null ? assoc.hashCode() : 0);
+        result = 31 * result + ((int) value);
+        result = 31 * result + id.hashCode();
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + position;
+
+        return result;
+    }
+
+    /**
+     * @return String of format "Token:{TOKEN_ID}:{TOKEN_POSITION}"
+     */
+    @Override
     public String toString() {
-        return "Token{\n" +
-            "id=" + id +
-            ",\n position=" + position +
-            ",\n assoc=" + assoc +
-            ",\n priority=" + priority +
-            ",\n name='" + name + '\'' +
-            ",\n value=" + value +
-            "\n}";
+        return "Token:" + id + ":" + position;
     }
 }
