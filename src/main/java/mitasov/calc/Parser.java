@@ -32,7 +32,9 @@ class Parser {
             hasOperators = true;
         }
 
-        int priority = token.getAssoc() != Assoc.RIGHT ? token.getPriority() : token.getPriority() + 1;
+        int priority = token.getAssoc() != Assoc.RIGHT && token.getAssoc() != Assoc.PREF
+            ? token.getPriority()
+            : token.getPriority() + 1;
         while (!tokenStack.empty() && priority <= tokenStack.peek().getPriority()) {
             codeGen.push(tokenStack.pop());
         }
@@ -111,7 +113,7 @@ class Parser {
                 }
                 if (prevToken == null || !isOperand(prevToken.getId())) {
                     if (token.getId() == MINUS) {
-                        token = new Token(UN_MINUS, Assoc.PREF).setPriority(3);
+                        token.setId(UN_MINUS).setAssoc(Assoc.PREF).setPriority(7);
                         pushOperator(token);
                         break;
                     } else if (token.getId() == PLUS) {
