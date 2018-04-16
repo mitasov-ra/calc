@@ -8,7 +8,7 @@ import static mitasov.calc.Token.Id.*;
 class Lexer {
 
     private static final char ENDING_CHAR = '#';
-    private static HashMap<String, Token> predeclared = new HashMap<String, Token>() {
+    private static final HashMap<String, Token> predeclared = new HashMap<String, Token>() {
         @Override
         public Token get(Object key) {
             return new Token(super.get(key)); //возвращает копию токена
@@ -80,10 +80,10 @@ class Lexer {
     private final char POINT;
     private int pos;
     private char[] buffer;
-    private Constants constants;
+    private Expression.Constants constants;
     private Token savedToken = null;
 
-    Lexer(String expression, Constants constants, char POINT) {
+    Lexer(String expression, Expression.Constants constants, char POINT) {
         this.POINT = POINT;
         this.constants = constants;
 
@@ -93,11 +93,11 @@ class Lexer {
         pos = 0;
     }
 
-    Lexer(String expression, Constants constants) {
+    Lexer(String expression, Expression.Constants constants) {
         this(expression, constants, '.');
     }
 
-    Token lookForToken() throws CompileException {
+    Token lookForToken() throws CompilationException {
         if (savedToken == null) {
             savedToken = nextToken();
             return savedToken;
@@ -106,7 +106,7 @@ class Lexer {
         return savedToken;
     }
 
-    Token nextToken() throws CompileException {
+    Token nextToken() throws CompilationException {
         if (savedToken != null) {
             Token temp = savedToken;
             savedToken = null;
@@ -167,11 +167,11 @@ class Lexer {
                     return new Token(PERCENT, SUF, pos - 1).setPriority(6);
                 case ENDING_CHAR:
                     if (pos != buffer.length) {
-                        throw new CompileException("Invalid character: " + ENDING_CHAR, pos - 1);
+                        throw new InvalidCharacterException("Invalid character: " + ENDING_CHAR, pos - 1);
                     }
-                    return new Token(END, null, pos);
+                    return new Token(END, null, pos - 1);
                 default:
-                    throw new CompileException("Invalid character: " + buffer[pos - 1], pos - 1);
+                    throw new InvalidCharacterException("Invalid character: " + buffer[pos - 1], pos - 1);
                 }
             case 1: {
                 if (Character.isJavaIdentifierPart(c)) {
@@ -193,7 +193,7 @@ class Lexer {
 
                 String word = String.valueOf(buffer, begin, pos - begin);
                 Token tok = new Token(NUMBER, null, begin);
-                if (word.equals("" + POINT)) {
+                if (word.equals(String.valueOf(POINT))) {
                     return tok.setValue(0d).setLength(word.length());
                 } else {
                     return tok.setValue(Double.parseDouble(word.replace(POINT, '.'))).setLength(word.length());

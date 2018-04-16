@@ -8,11 +8,11 @@ import static mitasov.calc.Token.Id;
 import static mitasov.calc.Token.Id.*;
 
 class Parser {
-    private Stack<Token> tokenStack;
-    private RPNCodeGen codeGen;
+    private final Stack<Token> tokenStack;
+    private final CompiledExpression codeGen;
     private boolean hasOperators = false;
 
-    Parser(RPNCodeGen codeGen) {
+    Parser(CompiledExpression codeGen) {
         this.codeGen = codeGen;
         tokenStack = new Stack<>();
     }
@@ -45,7 +45,7 @@ class Parser {
         return hasOperators;
     }
 
-    void parse(Lexer lexer) throws CompileException {
+    void parse(Lexer lexer) throws CompilationException {
         hasOperators = false; //сброс флага операторов для нового выражения
         codeGen.clear(); //сброс данных в кодогенераторе
 
@@ -66,7 +66,7 @@ class Parser {
 
             case RPAREN:
                 if (prevToken == null || !isOperand(prevToken.getId())) {
-                    throw new CompileException("Unexpected character: )", token);
+                    throw new ParenthesisException("Wrong position of closing parenthesis", token);
                 }
                 while (!tokenStack.empty() && tokenStack.peek().getId() != LPAREN) {
                     codeGen.push(tokenStack.pop());
@@ -74,22 +74,22 @@ class Parser {
                 try {
                     tokenStack.pop();
                 } catch (EmptyStackException e) { //LPAREN expected in stack
-                    throw new CompileException("Closing parenthesis without opening", token);
+                    throw new ParenthesisException("Closing parenthesis without opening", token);
                 }
                 break;
 
             case END:
                 if (prevToken == null) {
-                    throw new CompileException("Unexpected end of expression", 0, 0);
+                    throw new UnexpectedEndException("Unexpected end of expression", 0, 0);
                 }
 
                 if (!isOperand(prevToken.getId())) {
-                    throw new CompileException("Unexpected end of expression", prevToken);
+                    throw new UnexpectedEndException("Unexpected end of expression", prevToken);
                 }
 
                 while (!tokenStack.empty()) {
                     if (tokenStack.peek().getId() == RPAREN) {
-                        throw new CompileException("Unexpected character: )", tokenStack.peek());
+                        throw new ParenthesisException("Closing parenthesis without opening", tokenStack.peek());
                     } else if (tokenStack.peek().getId() == LPAREN) {
                         tokenStack.pop();
                         continue;
@@ -119,7 +119,7 @@ class Parser {
                     } else if (token.getId() == PLUS) {
                         continue;
                     }
-                    throw new CompileException("Operator without operand", token);
+                    throw new OperatorWithoutOperandException("Operator without operand", token);
                 }
 
                 pushOperator(token);

@@ -6,12 +6,12 @@ import java.util.Stack;
 import static mitasov.calc.Token.Assoc.PREF;
 import static mitasov.calc.Token.Assoc.SUF;
 
-class RPNCodeGen {
-    private Stack<Double> evalStack = new Stack<>();
-    private Constants constants;
+class CompiledExpression {
+    private final Stack<Double> evalStack = new Stack<>();
+    private Expression.Constants constants;
     private ArrayList<Token> rpnSequence = new ArrayList<>();
 
-    RPNCodeGen(Constants constants) {
+    CompiledExpression(Expression.Constants constants) {
         this.constants = constants;
     }
 
@@ -49,7 +49,7 @@ class RPNCodeGen {
         evalStack.clear();
     }
 
-    Double eval() {
+    Double eval(boolean strict) throws EvaluationException {
         if (!constants.isModified()) {
             return evalStack.peek();
         }
@@ -62,7 +62,13 @@ class RPNCodeGen {
                 evalStack.push(token.getValue());
                 break;
             case CONST:
-                evalStack.push(constants.get(token.getName()));
+                Double val = constants.get(token.getName());
+
+                if (val == null) {
+                    throw new ConstNotSetException("Значение костанты '" + token.getName() + "' не установлено");
+                }
+
+                evalStack.push(val);
                 break;
             case PI:
                 evalStack.push(Math.PI);
@@ -80,10 +86,16 @@ class RPNCodeGen {
                         break;
 
                     case SQRT:
+                        if (strict && value < 0) {
+                            throw new WrongArgumentException("Sqrt of negative number");
+                        }
                         result = Math.sqrt(value);
                         break;
 
                     case FACT:
+                        if (strict && value < 0) {
+                            throw new WrongArgumentException("Factorial of negative number");
+                        }
                         result = fact(value);
                         break;
 
@@ -108,10 +120,16 @@ class RPNCodeGen {
                         break;
 
                     case LN:
+                        if (strict && value < 0) {
+                            throw new WrongArgumentException("Logarithm of negative number");
+                        }
                         result = Math.log(value);
                         break;
 
                     case LOG:
+                        if (strict && value < 0) {
+                            throw new WrongArgumentException("Logarithm of negative number");
+                        }
                         result = Math.log10(value);
                         break;
 
@@ -176,6 +194,9 @@ class RPNCodeGen {
                         result = lval * rval;
                         break;
                     case DIV:
+                        if (strict && rval == 0) {
+                            throw new DivisionByZeroException("Division by zero");
+                        }
                         result = lval / rval;
                         break;
                     case POW:

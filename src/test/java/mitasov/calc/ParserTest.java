@@ -4,26 +4,36 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
+import static mitasov.calc.Token.Assoc.LEFT;
+import static mitasov.calc.Token.Assoc.PREF;
+import static mitasov.calc.Token.Assoc.SUF;
 import static mitasov.calc.Token.Id.*;
-import static mitasov.calc.Token.Assoc.*;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class ParserTest {
 
-    private Constants constants = new Constants();
+    private Expression expression;
 
     private final ArrayList<Token> parseResult = new ArrayList<>();
 
-    private RPNCodeGen codeGen = new RPNCodeGen(constants) {
-        @Override
-        void push(Token token) { //перехватываем вывод парсера
-            parseResult.add(token);
-        }
-    };
+    private final Parser parser;
 
-    private Parser parser = new Parser(codeGen);
+    { //сложная инициализация парсера из-за закрытости класса Expression
+        try {
+            expression = new Expression("4"); //просто пустышка чтоб получить объект Constants
+        } catch (CompilationException ignored) {
+        }
+
+        CompiledExpression codeGen = new CompiledExpression(expression.getConstants()) {
+            @Override
+            void push(Token token) { //перехватываем вывод парсера
+                parseResult.add(token);
+            }
+
+        };
+        parser = new Parser(codeGen);
+    }
 
     @Test
     public void testHasOperators() throws Exception {
@@ -55,7 +65,7 @@ public class ParserTest {
         };
 
         for (int i = 0; i < test.length; i++) {
-            parser.parse(new Lexer(test[i], constants));
+            parser.parse(new Lexer(test[i], expression.getConstants()));
             assertEquals(
                 "Error at " + test[i],
                 expect[i],
@@ -74,6 +84,12 @@ public class ParserTest {
             "2-1+8",
             "sqrt(4)",
             "sqrt 4",
+            "-6*69",
+            "5*-2",
+            "8!*9-ln 2",
+            "--6",
+            "ln -3",
+            "sin cos pi + 2",
         };
 
         Token[][] expect = {
@@ -120,12 +136,50 @@ public class ParserTest {
                 new Token(NUMBER, null, 5).setValue(4D),
                 new Token(SQRT, PREF, 0),
             },
+            {
+                new Token(NUMBER, null, 1).setValue(6),
+                new Token(UN_MINUS, PREF, 0),
+                new Token(NUMBER, null, 3).setValue(69),
+                new Token(MUL, LEFT, 2),
+            },
+            {
+                new Token(NUMBER, null, 0).setValue(5),
+                new Token(NUMBER, null, 3).setValue(2),
+                new Token(UN_MINUS, PREF, 2),
+                new Token(MUL, LEFT, 1),
+            },
+            {
+                new Token(NUMBER, null, 0).setValue(8),
+                new Token(FACT, SUF, 1),
+                new Token(NUMBER, null, 3).setValue(9),
+                new Token(MUL, LEFT, 2),
+                new Token(NUMBER, null, 8).setValue(2),
+                new Token(LN, PREF, 5),
+                new Token(MINUS, LEFT, 4),
+            },
+            {
+                new Token(NUMBER, null, 2).setValue(6),
+                new Token(UN_MINUS, PREF, 1),
+                new Token(UN_MINUS, PREF, 0),
+            },
+            {
+                new Token(NUMBER, null, 4).setValue(3),
+                new Token(UN_MINUS, PREF, 3),
+                new Token(LN, PREF, 0),
+            },
+            {
+                new Token(PI, null, 8),
+                new Token(COS, PREF, 4),
+                new Token(SIN, PREF, 0),
+                new Token(NUMBER, null, 13).setValue(2),
+                new Token(PLUS, LEFT, 11),
+            }
         };
 
         for (int i = 0; i < test.length; i++) {
             parseResult.clear();
 
-            parser.parse(new Lexer(test[i], constants));
+            parser.parse(new Lexer(test[i], expression.getConstants()));
 
             assertArrayEquals(expect[i], parseResult.toArray());
         }
