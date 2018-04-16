@@ -1,5 +1,7 @@
 package mitasov.calc;
 
+import java.util.Objects;
+
 class Token {
     private Id id;
     private int position;
@@ -100,7 +102,7 @@ class Token {
         return id == t.id
             && assoc == t.assoc
             && value == t.value
-            && (name == t.name || (name != null && name.equals(t.name)))
+            && Objects.equals(name, t.name)
             && position == t.position;
     }
 
@@ -118,11 +120,21 @@ class Token {
     }
 
     /**
-     * @return String of format "Token:{TOKEN_ID}:{TOKEN_POSITION}"
+     * @return String of format "Token:{ID}:{POSITION}" <br/>
+     * For NUMBER format is "Token:{ID}({VALUE}):{POSITION}" <br/>
+     * For CONST format is "Token:{ID}({NAME}={VALUE}):{POSITION}"
      */
     @Override
     public String toString() {
-        return "Token:" + id + ":" + position;
+        if (id == Id.NUMBER) {
+            return "Token:" + id + "(" + value + "):" + position;
+        }
+
+        if (id == Id.CONST) {
+            return "Token:" + id + "(" + name + "=" + value + "):" + position;
+        }
+
+        return  "Token:" + id + ":" + position;
     }
 
     enum Assoc {
