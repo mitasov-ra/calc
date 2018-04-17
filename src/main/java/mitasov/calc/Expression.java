@@ -45,12 +45,11 @@ import java.util.*;
  * d = e.evaluate(); // = 7
  * </pre>
  *
+ * @author Mitasov Roman (metas_roman@mail.ru)
  * @see #Expression(String)
  * @see #Expression(String, char)
  * @see #getConstants()
  * @see #evaluate()
- *
- * @author Mitasov Roman (metas_roman@mail.ru)
  */
 public final class Expression {
 
@@ -150,8 +149,9 @@ public final class Expression {
 
     /**
      * Вычислить выражение с указанием строгости вычисления
+     *
      * @param strict Выбрасывать ли такие исключения, как {@link DivisionByZeroException} и
-     * {@link WrongArgumentException}
+     *               {@link WrongArgumentException}
      * @return Результат вычисления, вместо {@code NaN} или {@code Infinite} вероятнее всего выбросит исключение
      * @throws EvaluationException
      */
@@ -160,7 +160,7 @@ public final class Expression {
     }
 
     /**
-     * Уникальный набор констант и их значений из выражения {@link Expression}
+     * Словарь - уникальный набор констант и их значений из выражения {@link Expression}
      */
     public class Constants {
         private boolean isModified = true;
@@ -183,10 +183,44 @@ public final class Expression {
         }
 
         /**
-         * @return Пуст ли набор
+         * @return int Размер словаря
+         */
+        public int size() {
+            return constMap.size();
+        }
+
+        /**
+         * @return Пуст ли словарь
          */
         public boolean isEmpty() {
             return constMap.isEmpty();
+        }
+
+        /**
+         * Имеется ли константа с указанным именем
+         *
+         * @param key Имя константы
+         * @return {@code true} если в наборе присутствует константа с таким именем, иначе {@code false}
+         */
+        public boolean containsKey(String key) {
+            return constMap.containsKey(key);
+        }
+
+        /**
+         * Имеется ли константа с таким значением
+         * @param value Значение константы
+         */
+        public boolean containsValue(Double value) {
+            return constMap.containsValue(value);
+        }
+
+        /**
+         * Возвращает немодифицируемый словарь имён констант
+         *
+         * @return Набор имён констант
+         */
+        public Set<String> keySet() {
+            return Collections.unmodifiableSet(constMap.keySet());
         }
 
         /**
@@ -207,21 +241,20 @@ public final class Expression {
          * @return this Метод является цепным
          * @throws IllegalArgumentException В случае, если такой константы в наборе нет
          */
-        public Constants put(String name, double value) {
+        public Double put(String name, Double value) {
             if (!constMap.containsKey(name)) {
                 throw new IllegalArgumentException("No such constant in set");
             }
 
             isModified = true;
-            constMap.put(name, value);
-            return this;
+            return constMap.put(name, value);
         }
 
         /**
-         * @return Набор имён констант
+         * Синоним {@link #keySet}
          */
         public Set<String> names() {
-            return Collections.unmodifiableSet(constMap.keySet());
+            return keySet();
         }
 
         /**
