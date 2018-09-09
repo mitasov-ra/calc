@@ -137,6 +137,12 @@ class Lexer {
                     break;
                 }
 
+                if (c == POINT) {
+                    begin = pos;
+                    state = 3;
+                    break;
+                }
+
                 switch (buffer[pos++]) {
                 case '+':
                     return new Token(PLUS, LEFT, pos - 1).setPriority(1);
@@ -186,7 +192,20 @@ class Lexer {
                 return (new Token(CONST, null, begin)).setName(word).setLength(word.length());
             }
 
-            case 2: {
+            case 2:
+                if (isNumber(c)) {
+                    break;
+                }
+
+                if (c == POINT) {
+                    state = 3;
+                    break;
+                }
+            case 3: {
+                if (c == POINT) {
+                    throw new CompilationException("Wrong number format. Dot is not allowed here", pos);
+                }
+
                 if (isNumber(c)) {
                     break;
                 }
@@ -205,6 +224,6 @@ class Lexer {
     }
 
     private boolean isNumber(char n) {
-        return Character.isDigit(n) || n == POINT;
+        return Character.isDigit(n);
     }
 }
