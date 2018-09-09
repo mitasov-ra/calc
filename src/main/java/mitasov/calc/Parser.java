@@ -6,6 +6,7 @@ import java.util.Stack;
 import static mitasov.calc.Token.Assoc;
 import static mitasov.calc.Token.Id;
 import static mitasov.calc.Token.Id.*;
+import static mitasov.calc.ExpressionException.Code;
 
 class Parser {
     private final Stack<Token> tokenStack;
@@ -45,7 +46,7 @@ class Parser {
         return hasOperators;
     }
 
-    void parse(Lexer lexer) throws CompilationException {
+    void parse(Lexer lexer) throws ExpressionException {
         hasOperators = false; //сброс флага операторов для нового выражения
         codeGen.clear(); //сброс данных в кодогенераторе
 
@@ -66,7 +67,7 @@ class Parser {
 
             case RPAREN:
                 if (prevToken == null || !isOperand(prevToken.getId())) {
-                    throw new ParenthesisException("Wrong position of closing parenthesis", token);
+                    throw new ExpressionException(Code.RPAREN_UNEXPECTED, token);
                 }
                 while (!tokenStack.empty() && tokenStack.peek().getId() != LPAREN) {
                     codeGen.push(tokenStack.pop());
@@ -74,22 +75,22 @@ class Parser {
                 try {
                     tokenStack.pop();
                 } catch (EmptyStackException e) { //LPAREN expected in stack
-                    throw new ParenthesisException("Closing parenthesis without opening", token);
+                    throw new ExpressionException(Code.LPAREN_MISSING, token);
                 }
                 break;
 
             case END:
                 if (prevToken == null) {
-                    throw new UnexpectedEndException("Unexpected end of expression", 0, 0);
+                    throw new ExpressionException(Code.UNEXPECTED_END, 0, 0);
                 }
 
                 if (!isOperand(prevToken.getId())) {
-                    throw new UnexpectedEndException("Unexpected end of expression", prevToken);
+                    throw new ExpressionException(Code.UNEXPECTED_END, prevToken);
                 }
 
                 while (!tokenStack.empty()) {
                     if (tokenStack.peek().getId() == RPAREN) {
-                        throw new ParenthesisException("Closing parenthesis without opening", tokenStack.peek());
+                        throw new ExpressionException(Code.LPAREN_MISSING, tokenStack.peek());
                     } else if (tokenStack.peek().getId() == LPAREN) {
                         tokenStack.pop();
                         continue;
@@ -119,7 +120,7 @@ class Parser {
                     } else if (token.getId() == PLUS) {
                         continue;
                     }
-                    throw new OperatorWithoutOperandException("Operator without operand", token);
+                    throw new ExpressionException(Code.OPERATOR_WITHOUT_OPERAND, token);
                 }
 
                 pushOperator(token);

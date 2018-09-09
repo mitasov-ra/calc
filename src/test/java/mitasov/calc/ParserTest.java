@@ -22,7 +22,8 @@ public class ParserTest {
     { //сложная инициализация парсера из-за закрытости класса Expression
         try {
             expression = new Expression("4"); //просто пустышка чтоб получить объект Constants
-        } catch (CompilationException ignored) {
+        } catch (ExpressionException e) {
+            throw new RuntimeException("Bad expression init");
         }
 
         CompiledExpression codeGen = new CompiledExpression(expression.getConstants()) {

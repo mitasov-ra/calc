@@ -49,7 +49,7 @@ class CompiledExpression {
         evalStack.clear();
     }
 
-    Double eval(boolean strict) throws EvaluationException {
+    Double eval(boolean strict) throws ExpressionException {
         if (!constants.isModified()) {
             return evalStack.peek();
         }
@@ -65,7 +65,7 @@ class CompiledExpression {
                 Double val = constants.get(token.getName());
 
                 if (val == null) {
-                    throw new ConstNotSetException("Значение костанты '" + token.getName() + "' не установлено");
+                    throw new ExpressionException(ExpressionException.Code.UNDEFINED_CONST, token);
                 }
 
                 evalStack.push(val);
@@ -87,14 +87,14 @@ class CompiledExpression {
 
                     case SQRT:
                         if (strict && value < 0) {
-                            throw new WrongArgumentException("Sqrt of negative number");
+                            throw new ExpressionException(ExpressionException.Code.SQRT_OF_NEG, token);
                         }
                         result = Math.sqrt(value);
                         break;
 
                     case FACT:
                         if (strict && value < 0) {
-                            throw new WrongArgumentException("Factorial of negative number");
+                            throw new ExpressionException(ExpressionException.Code.FACT_OF_NEG, token);
                         }
                         result = fact(value);
                         break;
@@ -121,14 +121,14 @@ class CompiledExpression {
 
                     case LN:
                         if (strict && value < 0) {
-                            throw new WrongArgumentException("Logarithm of negative number");
+                            throw new ExpressionException(ExpressionException.Code.LOG_OF_NEG, token);
                         }
                         result = Math.log(value);
                         break;
 
                     case LOG:
                         if (strict && value < 0) {
-                            throw new WrongArgumentException("Logarithm of negative number");
+                            throw new ExpressionException(ExpressionException.Code.LOG_OF_NEG, token);
                         }
                         result = Math.log10(value);
                         break;
@@ -195,7 +195,7 @@ class CompiledExpression {
                         break;
                     case DIV:
                         if (strict && rval == 0) {
-                            throw new DivisionByZeroException("Division by zero");
+                            throw new ExpressionException(ExpressionException.Code.DIV_BY_ZERO, token);
                         }
                         result = lval / rval;
                         break;

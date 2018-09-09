@@ -72,7 +72,7 @@ public final class Expression {
      * @param POINT      Символ, которым будет заменён символ плавающей точки
      * @see #Expression(String)
      */
-    public Expression(String expression, char POINT) throws CompilationException {
+    public Expression(String expression, char POINT) throws ExpressionException {
         this.expression = expression;
         constants = new Constants();
         codeGen = new CompiledExpression(constants);
@@ -99,7 +99,7 @@ public final class Expression {
      *                              {@link ParenthesisException}, {@link UnexpectedEndException}
      * @see #Expression(String, char)
      */
-    public Expression(String expression) throws CompilationException {
+    public Expression(String expression) throws ExpressionException {
         this(expression, '.');
     }
 
@@ -143,20 +143,17 @@ public final class Expression {
      * @return Результат вычисления, может быть {@code NaN} или {@code Infinite}
      * @throws EvaluationException ошибка в ходе вычисления, например {@link ConstNotSetException}
      */
-    public double evaluate() throws EvaluationException {
+    public double evaluate() throws ExpressionException {
         return codeGen.eval(false);
     }
 
     /**
-     * Вычислить выражение с указанием строгости вычисления
+     * Вычислить выражение в строгом режиме
      *
-     * @param strict Выбрасывать ли такие исключения, как {@link DivisionByZeroException} и
-     *               {@link WrongArgumentException}
      * @return Результат вычисления, вместо {@code NaN} или {@code Infinite} вероятнее всего выбросит исключение
-     * @throws EvaluationException
      */
-    public double evaluate(boolean strict) throws EvaluationException {
-        return codeGen.eval(strict);
+    public double evaluateStrict() throws ExpressionException {
+        return codeGen.eval(true);
     }
 
     /**

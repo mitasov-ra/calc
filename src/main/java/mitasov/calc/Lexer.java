@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import static mitasov.calc.Token.Assoc.*;
 import static mitasov.calc.Token.Id.*;
+import static mitasov.calc.ExpressionException.Code;
 
 class Lexer {
 
@@ -97,7 +98,7 @@ class Lexer {
         this(expression, constants, '.');
     }
 
-    Token lookForToken() throws CompilationException {
+    Token lookForToken() throws ExpressionException {
         if (savedToken == null) {
             savedToken = nextToken();
             return savedToken;
@@ -106,7 +107,7 @@ class Lexer {
         return savedToken;
     }
 
-    Token nextToken() throws CompilationException {
+    Token nextToken() throws ExpressionException {
         if (savedToken != null) {
             Token temp = savedToken;
             savedToken = null;
@@ -173,11 +174,11 @@ class Lexer {
                     return new Token(PERCENT, SUF, pos - 1).setPriority(6);
                 case ENDING_CHAR:
                     if (pos != buffer.length) {
-                        throw new InvalidCharacterException("Invalid character: " + ENDING_CHAR, pos - 1);
+                        throw new ExpressionException(Code.INVALID_CHARACTER, pos - 1);
                     }
                     return new Token(END, null, pos - 1);
                 default:
-                    throw new InvalidCharacterException("Invalid character: " + buffer[pos - 1], pos - 1);
+                    throw new ExpressionException(Code.INVALID_CHARACTER, pos - 1);
                 }
             case 1: {
                 if (Character.isJavaIdentifierPart(c)) {
@@ -203,7 +204,7 @@ class Lexer {
                 }
             case 3: {
                 if (c == POINT) {
-                    throw new CompilationException("Wrong number format. Dot is not allowed here", pos);
+                    throw new ExpressionException(Code.WRONG_NUMBER, pos);
                 }
 
                 if (isNumber(c)) {

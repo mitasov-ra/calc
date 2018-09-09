@@ -19,9 +19,9 @@ public class LexerTest {
         Expression expr;
         try {
             expr = new Expression("3");
-        } catch (CompilationException e1) {
-            expr = null;
-            e1.printStackTrace();
+        } catch (ExpressionException e) {
+            throw new RuntimeException("Bad expression init");
+
         }
         expression = expr;
     }
@@ -255,7 +255,7 @@ public class LexerTest {
     }
 
     @Test
-    public void testError() throws CompilationException {
+    public void testError() {
 
 
         try {
@@ -265,8 +265,8 @@ public class LexerTest {
             l.nextToken(); //throws exception
 
             fail("Exception must be thrown");
-        } catch (InvalidCharacterException e) {
-            assertEquals("Invalid character: #", e.getMessage());
+        } catch (ExpressionException e) {
+            assertEquals(ExpressionException.Code.INVALID_CHARACTER, e.getCode());
             assertEquals(1, e.getPosition());
             assertEquals(2, e.getEndPosition());
             assertEquals(1, e.getLength());
@@ -281,8 +281,8 @@ public class LexerTest {
             l.nextToken(); //throws exception
 
             fail("Exception must be thrown");
-        } catch (InvalidCharacterException e) {
-            assertEquals("Invalid character: `", e.getMessage());
+        } catch (ExpressionException e) {
+            assertEquals(ExpressionException.Code.INVALID_CHARACTER, e.getCode());
             assertEquals(3, e.getPosition());
             assertEquals(4, e.getEndPosition());
             assertEquals(1, e.getLength());
@@ -290,7 +290,7 @@ public class LexerTest {
     }
 
     @Test
-    public void testConstantsFilling() throws CompilationException {
+    public void testConstantsFilling() throws ExpressionException {
         Expression e = new Expression("1"); //создастся без ошибок
 
         Lexer l = new Lexer("a a b c b", e.getConstants());

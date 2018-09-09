@@ -102,33 +102,36 @@ for (String name : names) { //пример итерации по именам
 
 #### Обработка ошибок
 
-Все исключения, которые может бросить класс `Expression`, наследованы от абстрактного
-класса `ExpressionException`. Все исключения делятся на две группы:
-* `CompilationException` - ошибки в ходе компиляции (лексические и синтаксические)
-* `EvaluationException` - ошибки в ходе вычисления (деление на ноль, отсутствие значения переменной)
+Класс `Expression` при создании и вычислении выражения может
+бросить исключение `ExpressionException`. Определить, какая ошибка
+произошла, можно, вызвав метод `ExpressionException#getCode()`. Метод
+вернёт enum-элемент типа `ExpressionException.Code`. Коды ошибок бывают
+следующие:
 
-Исключения, наследованные от `CompilationException`:
-* `InvalidCharacterException`
-* `SyntaxException`
-    * `OperatorWithoutOperandException`
-    * `ParenthesisException`
-    * `UnexpectedEndException`
+###### Ошибки в ходе анализа (лексические и синтаксические)
+* `INVALID_CHARACTER` - неверный (неизвестный) символ;
+* `WRONG_NUMBER` - неверный формат числа;
+* `OPERATOR_WITHOUT_OPERAND` - не указан операнд для оператора (напр. "2+");
+* `RPAREN_UNEXPECTED` - неверное положение закрывающей скобки;
+* `LPAREN_MISSING` - не хватает открывающей скобки (закрывающая скобка без открывающей);
+* `UNEXPECTED_END` - неожиданный конец выражения;
 
-Исключения, наследованные от `EvaluationException`:
-* `ConstNotSetException`
-* `DivisionByZeroException`
-* `WrongArgumentException`
+###### Ошибки в ходе вычисления
+* `SQRT_OF_NEG` - квадратный корень из отрицательного числа;
+* `FACT_OF_NEG` - факториал отрицательного числа;
+* `LOG_OF_NEG` - логарифм отрицательного числа;
+* `UNDEFINED_CONST` - неопределённая константа (не указано значение);
+* `DIV_BY_ZERO` - деление на ноль;
 
-При ошибке в ходе анализа выражения, калькулятор бросает исключение,
-производное от `CompileException`.
-Объект `CompileException` кроме сообщения содержит информацию о позиции ошибочной
-подстроки и о её длине
+Объект `ExpressionException` кроме сообщения и кода содержит информацию
+о позиции ошибочной подстроки и о её длине
 
 ```java
 try {
     Expression e = new Expression("26+*983"); // бросит исключение на символе '*'
-} catch (OperatorWithoutOperandException e) {
-    System.out.println(e.getMessage());  // выведет "Operator without operand"
+} catch (ExpressionException e) {
+    System.out.println(e.getCode());     // выведет OPERATOR_WITHOUT_OPERAND
+    System.out.println(e.getMessage());  // выведет "Operator used without operand"
     System.out.println(e.getPosition()); // выведет 3
     System.out.println(e.getLength());   // выведет 1
     System.out.println(e.getEndPosition()); // то же что и сумма позиции и длины
@@ -136,24 +139,19 @@ try {
 ```
 
 При попытке вычислить выражение, не назначив константам значения, метод
-`evaluate()` всегда будет выбрасывать `ConstNotSetException`
+`evaluate()` будет выбрасывать ошибку с кодом `UNDEFINED_CONST`
 
 В случаях деления на ноль или получения факториала отрицательного числа, метод
-`evaluate()` не будет выбрасывать исключения, а будет возвращать `Infinite`
-или `NaN`. Чтобы "включить" эти исключения, необходимо вызвать метод `evaluate(true)`:
+`evaluate()` не будет выбрасывать исключение, а будет возвращать `Infinite`
+или `NaN`. Чтобы "включить" исключение, необходимо вызвать метод `evaluateStrict()`:
 
 ```java
 try {
     Expression e = new Expression("10 / 0");
     double d = e.evaluate(); // бесконечность
-    d = e.evaluate(false); // то же самое
 
-    d = e.evaluate(true); // выбросит исключение
-} catch (CompileException ignored) {
-
-} catch (DivisionByZeroException e) {
-    System.out.println(e.getMessage); // "Division by zero"
-} catch (EvaluationException ignored) {
-
+    d = e.evaluateStrict();
+} catch (ExpressionException e) {
+    System.out.println(e.getCode()); // DIV_BY_ZERO
 }
 ```
