@@ -23,7 +23,7 @@ class CompiledExpression {
 
         double ret = 1;
 
-        for (int i = 1; i <= value; ++i) {
+        for (double i = 1; i <= value; ++i) {
             ret *= i;
         }
         return ret;
