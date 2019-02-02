@@ -118,6 +118,14 @@ public final class Expression {
         return constants;
     }
 
+    public void setUseDegrees(boolean useDegrees) {
+        this.codeGen.setUseDegrees(useDegrees);
+    }
+
+    public boolean isDegreesUsed() {
+        return this.codeGen.isDegreesUsed();
+    }
+
     /**
      * @return <code>true</code>, если в выражении присутсвуют константы
      */

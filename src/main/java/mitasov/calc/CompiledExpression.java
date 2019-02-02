@@ -10,6 +10,7 @@ class CompiledExpression {
     private final Stack<Double> evalStack = new Stack<>();
     private Expression.Constants constants;
     private ArrayList<Token> rpnSequence = new ArrayList<>();
+    private boolean useDegrees = false;
 
     CompiledExpression(Expression.Constants constants) {
         this.constants = constants;
@@ -100,15 +101,15 @@ class CompiledExpression {
                         break;
 
                     case SIN:
-                        result = Math.sin(value);
+                        result = Math.sin(convertToRadiansIfNeeded(value));
                         break;
 
                     case COS:
-                        result = Math.cos(value);
+                        result = Math.cos(convertToRadiansIfNeeded(value));
                         break;
 
                     case TAN:
-                        result = Math.tan(value);
+                        result = Math.tan(convertToRadiansIfNeeded(value));
                         break;
 
                     case SGN:
@@ -138,39 +139,39 @@ class CompiledExpression {
                         break;
 
                     case COT:
-                        result = cot(value);
+                        result = cot(convertToRadiansIfNeeded(value));
                         break;
 
                     case ACOS:
-                        result = Math.acos(value);
+                        result = Math.acos(convertToRadiansIfNeeded(value));
                         break;
 
                     case ASIN:
-                        result = Math.asin(value);
+                        result = Math.asin(convertToRadiansIfNeeded(value));
                         break;
 
                     case ATAN:
-                        result = Math.atan(value);
+                        result = Math.atan(convertToRadiansIfNeeded(value));
                         break;
 
                     case ACOT:
-                        result = acot(value);
+                        result = acot(convertToRadiansIfNeeded(value));
                         break;
 
                     case CH:
-                        result = Math.cosh(value);
+                        result = Math.cosh(convertToRadiansIfNeeded(value));
                         break;
 
                     case SH:
-                        result = Math.sinh(value);
+                        result = Math.sinh(convertToRadiansIfNeeded(value));
                         break;
 
                     case TH:
-                        result = Math.tanh(value);
+                        result = Math.tanh(convertToRadiansIfNeeded(value));
                         break;
 
                     case CTH:
-                        result = coth(value);
+                        result = coth(convertToRadiansIfNeeded(value));
                         break;
 
                     case UN_MINUS:
@@ -211,5 +212,21 @@ class CompiledExpression {
         }
         constants.resetModified();
         return evalStack.peek();
+    }
+
+    private double convertToRadiansIfNeeded(double value) {
+        if (this.useDegrees) {
+            return Math.toRadians(value);
+        }
+
+        return value;
+    }
+
+    boolean isDegreesUsed() {
+        return useDegrees;
+    }
+
+    void setUseDegrees(boolean useDegrees) {
+        this.useDegrees = useDegrees;
     }
 }
