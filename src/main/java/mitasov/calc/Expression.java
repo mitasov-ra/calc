@@ -36,7 +36,7 @@ import java.util.*;
  * d = e.evaluate(); // = 4.5
  *
  * e = new Expression("a + b");
- * // выбросит {@link ConstNotSetException}
+ * // выбросит {@link ExpressionException} с кодом UNDEFINED_CONST
  * // d = e.evaluate();
  *
  * e.getConstants().put("a", 3); // getConstants() возвращает объект {@link Expression.Constants}
@@ -92,11 +92,8 @@ public final class Expression {
      * </pre>
      *
      * @param expression Строка выражения
-     * @throws CompilationException Исключение обработки выражения,
-     *                              может быть лексической ({@link InvalidCharacterException})
-     *                              или синтаксической ({@link SyntaxException}) ошибкой.
-     *                              Синтаксические ошибки: {@link OperatorWithoutOperandException},
-     *                              {@link ParenthesisException}, {@link UnexpectedEndException}
+     * @throws ExpressionException Исключение обработки выражения, содержат код и
+     *                             информацию о месте ошибки в выражении
      * @see #Expression(String, char)
      */
     public Expression(String expression) throws ExpressionException {
@@ -141,7 +138,7 @@ public final class Expression {
      * То же самое, что {@code evaluate(false)}
      *
      * @return Результат вычисления, может быть {@code NaN} или {@code Infinite}
-     * @throws EvaluationException ошибка в ходе вычисления, например {@link ConstNotSetException}
+     * @throws ExpressionException ошибка в ходе вычисления
      */
     public double evaluate() throws ExpressionException {
         return codeGen.eval(false);
