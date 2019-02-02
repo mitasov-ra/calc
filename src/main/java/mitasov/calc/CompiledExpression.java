@@ -94,10 +94,14 @@ class CompiledExpression {
                         break;
 
                     case FACT:
-                        if (strict && value < 0) {
-                            throw new ExpressionException(ExpressionException.Code.FACT_OF_NEG, token);
-                        }
                         result = fact(value);
+                        if (strict && Double.isNaN(result)) {
+                            if (value < 0) {
+                                throw new ExpressionException(ExpressionException.Code.FACT_OF_NEG, token);
+                            }
+
+                            throw new ExpressionException(ExpressionException.Code.BAD_FACT_ARG, token);
+                        }
                         break;
 
                     case SIN:

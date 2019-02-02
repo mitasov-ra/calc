@@ -57,6 +57,7 @@ public class ExpressionException extends Exception {
         WRONG_NUMBER("Wrong number format"),
         SQRT_OF_NEG("Sqrt of negative number"),
         FACT_OF_NEG("Factorial of negative number"),
+        BAD_FACT_ARG("Factorial used with wrong argument"),
         LOG_OF_NEG("Logarithm of negative number"),
         UNDEFINED_CONST("Using of undefined constant"),
         DIV_BY_ZERO("Division by zero"),
