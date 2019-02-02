@@ -37,7 +37,7 @@ class CompiledExpression {
     }
 
     private static double acot(double value) {
-        return Math.PI / 2.0D - cot(value);
+        return Math.PI / 2.0D + Math.atan(-value);
     }
 
     void push(Token token) {
